@@ -41,10 +41,10 @@ class daq_acquire(object):
         self.nsamples = 10000 # if samplemode = 'continuous', 
                               # this determines buffer size
         self.samplemode = 'finite' # or 'continuous'
-        self.TERMINALEND = 'nrse' 
+        self.TERMINALEND = 'rse' 
             # consider 'rse' (referenced single-ended),'nrse'
-            # (non-referenced single ended) for configuration
-            # of analog input
+            # (non-referenced single ended), differential,
+            # for configuration of analog input
         ## Initialize task
         self.configure_task()
         ## Dummy data for now
@@ -66,10 +66,10 @@ class daq_acquire(object):
     def start_task(self):
         """Begin the collection and wait for it to be completed"""
         self.itask.start()
-        self.itask.wait_until_done(10.0)
     
     def read_data(self):
         """Read the data off the DAQ's buffer"""
+        self.itask.wait_until_done(10.0)
         raw= self.itask.read()
         deinterleaved = [[] for i in raw[0]]
         for sample in raw:
@@ -85,4 +85,8 @@ class daq_acquire(object):
     def return_dict(self):
         """Return data as a dictionary with expected channel labels"""
         labels = self.channelnames
-        return dict(zip(labels, self.data))
+        datadict = dict(zip(labels, self.data)) 
+        datadict['sample_rate'] = self.samplerate
+        datadict['sample_number'] = self.nsamples
+        datadict['terminal'] = self.TERMINALEND
+        return datadict
