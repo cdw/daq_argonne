@@ -8,6 +8,7 @@ Created by Dave Williams on 2014-12-04
 
 import sys
 import os
+import time
 import pickle
 import daq_control
 import trigger_qr_run 
@@ -26,6 +27,7 @@ def main(argv=None):
     exposure_delay = int(exposure_delay)
     fiber_offset = float(fiber_offset)
     trial_number = int(trial_number)
+    time.sleep(2) # allow serial to connect
     ## Acquire data
     arduino = trigger_qr_run.run_control()
     daq = daq_control.daq_acquire()
