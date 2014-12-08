@@ -11,7 +11,7 @@
 
 // Timing variables
 const int PREDELAY  = 10;     // in ms
-const int STIMDELAY = 200;    // in ms
+const int STIMDELAY = 250;    // in ms
 const int SHUTTERDELAY = 3;   // in ms
 const int STEPDELAY = 200;    // in µs
 const int EXPOSUREDUR = 500;  // in µs
@@ -28,8 +28,8 @@ int SHUT_OUT   = 4; // to quick shutter
 int SHUT_LED   = 5;
 int EXPOSE_OUT = 6; // to exposure trigger
 int EXPOSE_LED = 7;
-int STIM_OUT   = 8; // to stimulus trigger
-int STIM_LED   = 9;
+int STIM_OUT  = 11; // to stimulus trigger
+int STIM_LED  = 12;
 
 // Begin setup of board
 void setup()
