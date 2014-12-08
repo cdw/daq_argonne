@@ -41,7 +41,7 @@ class daq_acquire(object):
         self.nsamples = 10000 # if samplemode = 'continuous', 
                               # this determines buffer size
         self.samplemode = 'finite' # or 'continuous'
-        self.TERMINALEND = 'rse' 
+        self.TERMINALEND = 'diff' 
             # consider 'rse' (referenced single-ended),'nrse'
             # (non-referenced single ended), differential,
             # for configuration of analog input
