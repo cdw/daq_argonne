@@ -10,9 +10,11 @@
 
 
 // Timing variables
-const int PREDELAY  = 100;    // in ms
-const int STEPDELAY = 10;     // in µs
-const int EXPOSUREDUR = 100;  // in µs
+const int PREDELAY  = 10;     // in ms
+const int STIMDELAY = 200;    // in ms
+const int SHUTTERDELAY = 3;   // in ms
+const int STEPDELAY = 200;    // in µs
+const int EXPOSUREDUR = 500;  // in µs
 const int POSTEXPOSURE = 100; // in ms
 
 // Non-global variable declaration
@@ -26,6 +28,8 @@ int SHUT_OUT   = 4; // to quick shutter
 int SHUT_LED   = 5;
 int EXPOSE_OUT = 6; // to exposure trigger
 int EXPOSE_LED = 7;
+int STIM_OUT   = 8; // to stimulus trigger
+int STIM_LED   = 9;
 
 // Begin setup of board
 void setup()
@@ -43,6 +47,8 @@ void setup()
     pinMode(SHUT_LED, OUTPUT);
     pinMode(EXPOSE_OUT, OUTPUT);
     pinMode(EXPOSE_LED, OUTPUT);
+    pinMode(STIM_OUT, OUTPUT);
+    pinMode(STIM_LED, OUTPUT);
     // Initial pin states
     digitalWrite(LEN_OUT, LOW);
     digitalWrite(LEN_LED, LOW);
@@ -50,6 +56,8 @@ void setup()
     digitalWrite(SHUT_LED, LOW);
     digitalWrite(EXPOSE_OUT, LOW);
     digitalWrite(EXPOSE_LED, LOW);
+    digitalWrite(STIM_OUT, LOW);
+    digitalWrite(STIM_LED, LOW);
     // Close out setup
     Serial.println("Setup complete");
 }
@@ -59,7 +67,7 @@ void loop()
 {
     check_serial(); // read input if it exists
     if (run_now) {
-        run(PREDELAY, stepdelay, EXPOSUREDUR, POSTEXPOSURE);
+        run(PREDELAY, STIMDELAY, SHUTTERDELAY, stepdelay, EXPOSUREDUR, POSTEXPOSURE);
         Serial.println("Run complete"); // tag that we've done a run
         run_now = false; // reset the run flag
     }
@@ -79,17 +87,23 @@ void check_serial()
 }
 
 // Control a run
-void run(int predelay, int stepdelay, int exposureduration, int postexposure)
+void run(int predelay, int stimdelay, int shutterdelay, int stepdelay, int exposureduration, int postexposure)
 {
     delay(predelay);
+    digitalWrite(STIM_OUT, HIGH);
+    digitalWrite(STIM_LED, HIGH);
+    delay(stimdelay);
     digitalWrite(SHUT_OUT, HIGH); // shutter opened before step delay
     digitalWrite(SHUT_LED, HIGH); // may open during pre-delay in future
+    delay(shutterdelay);
     digitalWrite(LEN_OUT, HIGH);
     digitalWrite(LEN_LED, HIGH);
     delayMicroseconds(stepdelay);
     digitalWrite(EXPOSE_OUT, HIGH);
     digitalWrite(EXPOSE_LED, HIGH);
     delayMicroseconds(exposureduration);
+    digitalWrite(STIM_OUT, LOW);
+    digitalWrite(STIM_LED, LOW);
     digitalWrite(EXPOSE_OUT, LOW);
     digitalWrite(EXPOSE_LED, LOW);
     digitalWrite(SHUT_OUT, LOW);
