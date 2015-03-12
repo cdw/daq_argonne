@@ -31,11 +31,15 @@ class daq_acquire(object):
         #BEAM_IN = DEV+r'/ai2'       # beam shutter
         #EXPOSURE_IN = DEV+r'/ai3'   # exposure trigger
         #FORCE_IN = DEV+r'/ai4'      # force transducer
-        #ALL_IN = [STIM_IN, LENGTH_IN, BEAM_IN, EXPOSURE_IN, FORCE_IN]
-        #NAMES_IN = [r'stim', r'length', r'beam', r'exposure', r'force']
-        self.nchannels = 5
+        #PSD1 = DEV+r'/ai5'          # PSD side 1
+        #PSD2 = DEV+r'/ai6'          # PSD side 2
+        #ALL_IN = [STIM_IN, LENGTH_IN, BEAM_IN, EXPOSURE_IN, FORCE_IN,
+        #          PSD1, PSD2]
+        #NAMES_IN = [r'stim', r'length', r'beam', r'exposure', r'force',
+        #            r'psd1', r'psd2']
+        self.nchannels = 7
         self.channelnames = ['length', 'force', 'stimulation', 
-                             'beam', 'exposure']
+                             'beam', 'exposure', 'pds1', 'psd2']
         ## Sample rate configuration
         self.samplerate = 10000
         self.nsamples = 10000 # if samplemode = 'continuous', 
@@ -54,8 +58,9 @@ class daq_acquire(object):
         """Set up an analog input task"""
         n = str(self.nchannels - 1)
         self.itask = nidaqmx.AnalogInputTask()
+        #self.itask.create_voltage_channel(r'Dev1/ai2:7',
         self.itask.create_voltage_channel(r'Dev1/ai0:'+n,
-                                      min_val=0.0, max_val=10.0,
+                                      min_val=-10.0, max_val=10.0,
                                       terminal=self.TERMINALEND)
         self.itask.configure_timing_sample_clock(rate=self.samplerate,
                                       sample_mode=self.samplemode,
