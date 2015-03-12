@@ -42,7 +42,7 @@ def main(argv=None):
     data['fiber_offset'] = fiber_offset
     data['trial'] = trial_number
     ## Write out data
-    output_file = open('./trials/T%04i.pkl'%trial_number, 'w')
+    output_file = open('./trials/T%04i.pkl'%trial_number, 'wb')
     pickle.dump(data, output_file)
     output_file.close()
     ## Plot data
