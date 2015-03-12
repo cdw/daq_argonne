@@ -27,9 +27,9 @@ def main(argv=None):
     exposure_delay = int(exposure_delay)
     fiber_offset = float(fiber_offset)
     trial_number = int(trial_number)
-    time.sleep(2) # allow serial to connect
     ## Acquire data
     arduino = trigger_qr_run.run_control()
+    time.sleep(2) # allow serial to connect
     daq = daq_control.daq_acquire()
     daq.start_task()
     arduino.trigger_run(exposure_delay)
