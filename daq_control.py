@@ -39,7 +39,7 @@ class daq_acquire(object):
         #            r'psd1', r'psd2']
         self.nchannels = 7
         self.channelnames = ['length', 'force', 'stimulation', 
-                             'beam', 'exposure', 'pds1', 'psd2']
+                             'beam', 'exposure', 'psd1', 'psd2']
         ## Sample rate configuration
         self.samplerate = 10000
         self.nsamples = 10000 # if samplemode = 'continuous', 
