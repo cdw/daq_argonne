@@ -10,6 +10,7 @@ import sys
 import os
 import time
 import pickle
+import numpy as np
 import daq_control
 import trigger_qr_run 
 
@@ -23,7 +24,7 @@ def main(argv=None):
     ##                             exposure_delay, fiber_offset,
     ##                             trial_number]
     filepath, species, fiber_number, exposure_delay, fiber_offset, trial_number = argv
-    fiber_number = int(fiber_number)
+    fiber_number = fiber_number
     exposure_delay = int(exposure_delay)
     fiber_offset = float(fiber_offset)
     trial_number = int(trial_number)
@@ -51,20 +52,21 @@ def main(argv=None):
     plt.subplots_adjust(left=.15, bottom=.06, right=.95, top=.97, 
                         wspace=.17, hspace=.30)
     curr = axes[0]
-    curr.set_ylabel('length')
-    curr.plot(data['length'])
-    curr = axes[1]
     curr.set_ylabel('force')
     curr.plot(data['force'])
-    curr = axes[2]
+    curr = axes[1]
     curr.set_ylabel('stimulation')
     curr.plot(data['stimulation'])
+    curr = axes[2]
+    curr.set_ylabel('psd1')
+    curr.plot(data['psd1'])
     curr = axes[3]
-    curr.set_ylabel('beam')
-    curr.plot(data['beam'])
+    curr.set_ylabel('psd2')
+    curr.plot(data['psd2'])
     curr = axes[4]
-    curr.set_ylabel('exposure')
-    curr.plot(data['exposure'])
+    curr.set_ylabel('diff(psd1,2)/sum(psd1,2)')
+    diff_over_sum = lambda p1, p2: np.subtract(p1, p2)/np.add(p1,p2)
+    curr.plot(diff_over_sum(data['psd1'], data['psd2']))
     plt.show()
     return data
 
