@@ -50,7 +50,7 @@ void setup()
     pinMode(STIM_OUT, OUTPUT);
     pinMode(STIM_LED, OUTPUT);
     // Initial pin states
-    digitalWrite(LEN_OUT, LOW);
+    digitalWrite(LEN_OUT, HIGH);
     digitalWrite(LEN_LED, LOW);
     digitalWrite(SHUT_OUT, LOW);
     digitalWrite(SHUT_LED, LOW);
@@ -96,7 +96,7 @@ void run(int predelay, int stimdelay, int shutterdelay, int stepdelay, int expos
     digitalWrite(SHUT_OUT, HIGH); // shutter opened before step delay
     digitalWrite(SHUT_LED, HIGH); // may open during pre-delay in future
     delay(shutterdelay);
-    digitalWrite(LEN_OUT, HIGH);
+    digitalWrite(LEN_OUT, LOW);
     digitalWrite(LEN_LED, HIGH);
     delayMicroseconds(stepdelay);
     digitalWrite(EXPOSE_OUT, HIGH);
@@ -109,6 +109,6 @@ void run(int predelay, int stimdelay, int shutterdelay, int stepdelay, int expos
     digitalWrite(SHUT_OUT, LOW);
     digitalWrite(SHUT_LED, LOW);
     delay(postexposure);
-    digitalWrite(LEN_OUT, LOW);
+    digitalWrite(LEN_OUT, HIGH);
     digitalWrite(LEN_LED, LOW);
 }
