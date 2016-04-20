@@ -10,26 +10,41 @@
 
 
 // Timing variables
-const int PREDELAY  = 10;     // in ms
-const int STIMDELAY = 250;    // in ms
-const int SHUTTERDELAY = 3;   // in ms
-const int STEPDELAY = 200;    // in µs
-const int EXPOSUREDUR = 500;  // in µs
-const int POSTEXPOSURE = 100; // in ms
+const int PREDELAY  = 10;      // in ms, before stim goes on
+const int STIMDELAY = 250;     // in ms, between stim and shutter
+const int SHUTTERDELAY = 1000; // in µs, between shutter and length
+const int STEPDELAY = 200;     // in µs, between length and camera
+const int EXPOSUREDUR = 100;   // in µs, camera image duration
+const int POSTEXPOSURE = 1000; // in ms, before returning to length
 
 // Non-global variable declaration
 int stepdelay = STEPDELAY;
 bool run_now = false;
 
+// ArduTimer Hardware hconfiguration
+#define 1sig = 2;
+#define 1led = 3;
+#define 2sig = 4;
+#define 2led = 5;
+#define 3sig = 6;
+#define 3led = 7;
+#define 4sig = 8;
+#define 4led = 9;
+#define 5sig = 10;
+#define 5led = 11;
+#define 6sig = 12;
+#define 6led = 13;
+
+
 // Pin configuration
-int LEN_OUT    = 2; // to length controller
-int LEN_LED    = 3;
-int SHUT_OUT   = 4; // to quick shutter
-int SHUT_LED   = 5;
-int EXPOSE_OUT = 6; // to exposure trigger
-int EXPOSE_LED = 7;
-int STIM_OUT  = 11; // to stimulus trigger
-int STIM_LED  = 12;
+int LEN_OUT    = 1sig; // to length controller
+int LEN_LED    = 1led;
+int SHUT_OUT   = 4sig; // to quick shutter
+int SHUT_LED   = 4led;
+int EXPOSE_OUT = 5sig; // to exposure trigger
+int EXPOSE_LED = 5led;
+int STIM_OUT   = 3sig; // to stimulus trigger
+int STIM_LED   = 3led;
 
 // Begin setup of board
 void setup()
@@ -50,14 +65,10 @@ void setup()
     pinMode(STIM_OUT, OUTPUT);
     pinMode(STIM_LED, OUTPUT);
     // Initial pin states
-    digitalWrite(LEN_OUT, HIGH);
-    digitalWrite(LEN_LED, LOW);
-    digitalWrite(SHUT_OUT, LOW);
-    digitalWrite(SHUT_LED, LOW);
-    digitalWrite(EXPOSE_OUT, LOW);
-    digitalWrite(EXPOSE_LED, LOW);
-    digitalWrite(STIM_OUT, LOW);
-    digitalWrite(STIM_LED, LOW);
+    turn_length(false);
+    turn_stimulus(false);
+    turn_shutter(false);
+    turn_exposure(false);
     // Close out setup
     Serial.println("Setup complete");
 }
@@ -90,25 +101,77 @@ void check_serial()
 void run(int predelay, int stimdelay, int shutterdelay, int stepdelay, int exposureduration, int postexposure)
 {
     delay(predelay);
-    digitalWrite(STIM_OUT, HIGH);
-    digitalWrite(STIM_LED, HIGH);
+    turn_stimulus(true);
     delay(stimdelay);
-    digitalWrite(SHUT_OUT, HIGH); // shutter opened before step delay
-    digitalWrite(SHUT_LED, HIGH); // may open during pre-delay in future
-    delay(shutterdelay);
-    digitalWrite(LEN_OUT, LOW);
-    digitalWrite(LEN_LED, HIGH);
+    turn_shutter(true);
+    // shutter opened before step delay
+    // may open during pre-delay in future as latency is established
+    delayMicroseconds(shutterdelay);
+    turn_length(true);
     delayMicroseconds(stepdelay);
-    digitalWrite(EXPOSE_OUT, HIGH);
-    digitalWrite(EXPOSE_LED, HIGH);
+    turn_exposure(true);
     delayMicroseconds(exposureduration);
-    digitalWrite(STIM_OUT, LOW);
-    digitalWrite(STIM_LED, LOW);
-    digitalWrite(EXPOSE_OUT, LOW);
-    digitalWrite(EXPOSE_LED, LOW);
-    digitalWrite(SHUT_OUT, LOW);
-    digitalWrite(SHUT_LED, LOW);
+    turn_stimulus(false);
+    turn_exposure(false);
+    turn_shutter(false);
     delay(postexposure);
-    digitalWrite(LEN_OUT, HIGH);
-    digitalWrite(LEN_LED, LOW);
+    turn_length(false);
+}
+
+// Series of control functions
+/* Each takes a state, true for on and false for off. On and off values for 
+   each connection are set here. This is complicated since some need to be 
+   high when on while others need to be high when off. To double complicate 
+   things, I think that the transistor control shield on the ardutimer inverts
+   the signal. 
+
+   NOTE: THESE SHOULD BE DOUBLED CHECKED DURING SET UP.
+*/
+
+// Length control
+void turn_length(boolean state){
+    if(state == true){
+        digitalWrite(LEN_OUT, HIGH); 
+        digitalWrite(LEN_LED, HIGH);
+    }
+    else{
+        digitalWrite(LEN_OUT, LOW); 
+        digitalWrite(LEN_LED, LOW);
+    }
+}
+
+// Shutter control
+void turn_shutter(boolean state){
+    if(state == true){
+        digitalWrite(SHUT_OUT, LOW); 
+        digitalWrite(SHUT_LED, HIGH);
+    }
+    else{
+        digitalWrite(SHUT_OUT, HIGH); 
+        digitalWrite(SHUT_LED, LOW);
+    }
+}
+
+//Exposure control
+void turn_exposure(boolean state){
+    if(state == true){
+        digitalWrite(EXPOSE_OUT, LOW); 
+        digitalWrite(EXPOSE_LED, HIGH);
+    }
+    else{
+        digitalWrite(EXPOSE_OUT, HIGH);
+        digitalWrite(EXPOSE_LED, LOW);
+    }
+}
+
+//Stimulus control
+void turn_stimulus(boolean state){
+    if(state == true){
+        digitalWrite(STIM_OUT, LOW); 
+        digitalWrite(STIM_LED, HIGH);
+    }
+    else{
+        digitalWrite(STIM_OUT, HIGH); 
+        digitalWrite(STIM_LED, LOW);
+    }
 }
