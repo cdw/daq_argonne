@@ -59,6 +59,6 @@ class pilatus(object):
 
     def __del__(self):
         """Kill the connection"""
-        conn.shutdown(1)
-        conn.close()
+        self.conn.shutdown(1)
+        self.conn.close()
     
