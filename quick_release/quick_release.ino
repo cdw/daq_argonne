@@ -14,14 +14,14 @@ const int PREDELAY  = 10;      // in ms, before stim goes on
 const int STIMDELAY = 250;     // in ms, between stim and shutter
 const int SHUTTERDELAY = 1000; // in µs, between shutter and length
 const int STEPDELAY = 200;     // in µs, between length and camera
-const int EXPOSUREDUR = 100;   // in µs, camera image duration
+const int EXPOSUREDUR = 100;   // in µs, camera image duration  TODO: SEND THIS ONE OVER SERIAL TOO
 const int POSTEXPOSURE = 1000; // in ms, before returning to length
 
 // Non-global variable declaration
 int stepdelay = STEPDELAY;
 bool run_now = false;
 
-// ArduTimer Hardware hconfiguration
+// ArduTimer Hardware configuration
 #define SIG1 2;
 #define LED1 3;
 #define SIG2 4;
@@ -101,24 +101,22 @@ void check_serial()
 }
 
 // Control a run
-void run(int predelay, int stimdelay, int shutterdelay, int stepdelay, int exposureduration, int postexposure)
+void run(int predelay, int stimdelay, int shutterdelay, int stepdelay, int exposuredur, int postexposure)
 {
-    delay(predelay);
-    turn_stimulus(true);
-    delay(stimdelay);
-    turn_shutter(true);
-    // shutter opened before step delay
-    // may open during pre-delay in future as latency is established
-    delayMicroseconds(shutterdelay);
-    turn_length(true);
-    delayMicroseconds(stepdelay);
-    turn_exposure(true);
-    delayMicroseconds(exposureduration);
-    turn_stimulus(false);
-    turn_exposure(false);
-    turn_shutter(false);
-    delay(postexposure);
-    turn_length(false);
+    delay(predelay);                  // just to let things settle
+    turn_stimulus(true);              // shock the muscle
+    delay(stimdelay);                 // let force develop
+    turn_shutter(true);               // tell the shutter to open
+    delayMicroseconds(shutterdelay);  // let the shutter physically respond
+    turn_length(true);                // tell the length step to occur
+    delayMicroseconds(stepdelay);     // wait for the step plus propagation
+    turn_exposure(true);              // tell the camera to take a pic
+    delayMicroseconds(exposuredur);   // let the camera take a pic
+    turn_stimulus(false);             // stop shocking
+    turn_exposure(false);             // reset cam trigger
+    turn_shutter(false);              // tell the shutter to close
+    delay(postexposure);              // let the muscle rest
+    turn_length(false);               // reset (stretch) the muscle
 }
 
 // Series of control functions
