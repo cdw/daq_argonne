@@ -55,11 +55,11 @@ def grab(input_dict):
     trial_number = int(input_dict['trial_number'])
     exposure_length = int(input_dict['exposure_length'])
     ## Set up detector
-    detector = pilatus.pilatus()
     image_name = "T%04i_Delay%04i_Offset%02.3f_Fiber%i"%(trial_number, exposure_delay,
                                                          fiber_offset, fiber_number)
-    detector.exp_time = exposure_length
-    detector.trig_wait(image_name)
+    print "Trig wait with %s"%image_name
+    pilatus.set_up_pilatus(image_name, exposure_length)
+    time.sleep(2) # allow camera to ready, possibly not needed
     ## Acquire data
     arduino = trigger_qr_run.run_control()
     time.sleep(2) # allow serial to connect

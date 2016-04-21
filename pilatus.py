@@ -11,54 +11,39 @@ Created by Dave Williams on 2014-12-04
 
 import socket
 
-class pilatus(object):
-    """Connect to and configure the pilatus100 detector"""
-    def __init__(self):
-        """Set up the socket connection"""
-        self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        pilatus_address = ('164.54.204.70', 41234)
-        self.conn.connect(pilatus_address)
-        self._exp_time = 100 # allows auto-period updates
-        self.img_num = 1
-        self.exp_time = 100
-        self.base_dir = '/nas_data/2016DanielQR/'
-    
-    @property
-    def img_num(self):
-        """Number of images in next exposure set"""
-        return self._img_num
-    
-    @img_num.setter
-    def img_num(self, new_img_num):
-        self._img_num = new_img_num
-        self.conn.sendall("NImages = %i"%new_img_num + ' '*20)
-        self.update_period()
-    
-    @property
-    def exp_time(self):
-        """Exposure time in microseconds"""
-        return self._exp_time
 
-    @exp_time.setter
-    def exp_time(self, new_exp_time):
-        self._exp_time = new_exp_time
-        # Note conversion from microsec to seconds for writing
-        self.conn.sendall("ExpTime = %0.7f"%(new_exp_time/1000000.0) + ' '*20)
-        self.update_period()
+BASE_DIR = '/nas_data/2016DanielQR/'
+READ_TIME = 0.1 #minimal readout time, in seconds
+IMG_NUM = 1
+ADDRESS = ('164.54.204.70', 41234)
 
-    def update_period(self):
-        """Exposure period should be Nimages * ExpPeriod + Read Time"""
-        exp_per = self.img_num*self.exp_time/1000000.0 + 0.010
-        self.conn.sendall("ExpPeriod = %0.7f"%exp_per + ' '*20)
 
-    def trig_wait(self, out_name):
-        """Wait for an external trigger, writing output to out_name"""
-        if not out_name.split('.')[-1].startswith('tif'):
-            out_name += '.tif'
-        self.conn.sendall("ExtTrigger %s"%(self.base_dir+out_name) + ' '*20)
+def send_message(sock, message):
+    """Send a message to the pilatus over a socket, then close it"""
+    mess_len = len(message)
+    totalsent = 0
+    while totalsent<mess_len:
+        sent = sock.send(message[totalsent:])
+        if sent == 0:
+            raise RuntimeError("socket connection broken")
+        totalsent = totalsent + sent
 
-    def __del__(self):
-        """Kill the connection"""
-        self.conn.shutdown(1)
-        self.conn.close()
-    
+def set_up_pilatus(fn, exp_time):
+    """Configure the pilatus for an acquisition"""
+    # Validate the name
+    if not fn.split('.')[-1].startswith('tif'):
+            fn += '.tiff'
+    # Set up the socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(ADDRESS)
+    # Send the messages
+    img_msg = "NImages = %i\n"%IMG_NUM
+    exp_msg = "ExpTime = %0.7f\n"%(exp_time/1000000.0) # convert to sec
+    per_msg = "ExpPeriod = %0.7f\n"%(IMG_NUM*exp_time/1000000.0 + 0.100)
+    fn_msg = "ExtTrigger %s\n"%(BASE_DIR+fn)
+    send_message(sock, img_msg)
+    send_message(sock, exp_msg)
+    send_message(sock, per_msg)
+    send_message(sock, fn_msg)
+    sock.shutdown(1)
+    sock.close()
