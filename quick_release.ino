@@ -22,29 +22,29 @@ int stepdelay = STEPDELAY;
 bool run_now = false;
 
 // ArduTimer Hardware hconfiguration
-#define 1sig = 2;
-#define 1led = 3;
-#define 2sig = 4;
-#define 2led = 5;
-#define 3sig = 6;
-#define 3led = 7;
-#define 4sig = 8;
-#define 4led = 9;
-#define 5sig = 10;
-#define 5led = 11;
-#define 6sig = 12;
-#define 6led = 13;
+#define SIG1 2;
+#define LED1 3;
+#define SIG2 4;
+#define LED2 5;
+#define SIG3 6;
+#define LED3 7;
+#define SIG4 8;
+#define LED4 9;
+#define SIG5 10;
+#define LED5 11;
+#define SIG6 12;
+#define LED6 13;
 
 
 // Pin configuration
-int LEN_OUT    = 1sig; // to length controller
-int LEN_LED    = 1led;
-int SHUT_OUT   = 4sig; // to quick shutter
-int SHUT_LED   = 4led;
-int EXPOSE_OUT = 5sig; // to exposure trigger
-int EXPOSE_LED = 5led;
-int STIM_OUT   = 3sig; // to stimulus trigger
-int STIM_LED   = 3led;
+int LEN_OUT    = SIG1; // to length controller
+int LEN_LED    = LED1;
+int SHUT_OUT   = SIG4; // to quick shutter
+int SHUT_LED   = LED4;
+int EXPOSE_OUT = SIG5; // to exposure trigger
+int EXPOSE_LED = LED5;
+int STIM_OUT   = SIG3; // to stimulus trigger
+int STIM_LED   = LED3;
 
 // Begin setup of board
 void setup()
@@ -93,6 +93,9 @@ void check_serial()
         char ending = (char)Serial.read(); 
         if (ending == '\n') {          // ignore out-of-format commands
             run_now = true;
+        }
+        else {
+            Serial.println("Command ignored: didn't end in newline");
         }
     }
 }
