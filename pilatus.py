@@ -3,6 +3,9 @@
 """
 pilatus.py - connect to and control the pilatus100
 
+NB: cam_server must be on and epics GUI must be off for this to work
+If something looks wrong, debug by watching the output on the cam_server window
+
 Created by Dave Williams on 2014-12-04
 """
 
