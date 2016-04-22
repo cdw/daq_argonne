@@ -58,7 +58,7 @@ def grab(input_dict):
     image_name = "T%04i_Delay%04i_Offset%02.3f_Fiber%i"%(trial_number, exposure_delay,
                                                          fiber_offset, fiber_number)
     print "Trig wait with %s"%image_name
-    pilatus.set_up_pilatus(image_name, exposure_length)
+    image_path = pilatus.set_up_pilatus(image_name, exposure_length)
     time.sleep(2) # allow camera to ready, possibly not needed
     ## Acquire data
     arduino = trigger_qr_run.run_control()
@@ -69,7 +69,7 @@ def grab(input_dict):
     daq.read_data()
     data = daq.return_dict()
     ## Add in image name and input dict to data
-    data['image_name'] = image_name
+    data['image_path'] = image_path
     data.update(input_dict)
     ## Write out data
     output_file = open('./trials/T%04i.pkl'%trial_number, 'wb')

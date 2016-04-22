@@ -47,3 +47,4 @@ def set_up_pilatus(fn, exp_time):
     send_message(sock, fn_msg)
     sock.shutdown(1)
     sock.close()
+    return BASE_DIR+fn
