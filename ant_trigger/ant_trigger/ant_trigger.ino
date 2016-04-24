@@ -42,7 +42,8 @@ int SHUT_OUT   = SIG4; // to quick shutter
 int SHUT_LED   = LED4;
 int EXPOSE_OUT = SIG5; // to exposure trigger
 int EXPOSE_LED = LED5;
-
+int STIM_IN    = SIG3; // to stimulus trigger
+int STIM_LED   = LED3;
 
 // Begin setup of board
 void setup()
@@ -60,6 +61,8 @@ void setup()
     pinMode(SHUT_LED, OUTPUT);
     pinMode(EXPOSE_OUT, OUTPUT);
     pinMode(EXPOSE_LED, OUTPUT);
+    pinMode(STIM_IN, INPUT);
+    pinMode(STIM_LED, OUTPUT);
     // Initial pin states
     turn_ant(false);
     turn_shutter(false);
@@ -98,9 +101,12 @@ void check_serial()
 // Control a run
 void run(int predelay, int antdelay, int shutterdelay, int exposuredur, int postexposure)
 {
-    delay(predelay);      // just to let things settle
-    //turn_ant(true);       // whap the ant
-    //delay(antdelay);      // wait for motor movement
+//    delay(predelay);      // just to let things settle
+//    turn_ant(true);       // whap the ant
+    while(!digitalRead(STIM_IN)){
+      delayMicroseconds(2);
+    }
+    delay(antdelay);      // wait for motor movement
     turn_shutter(true);   // tell the shutter to open
     delay(shutterdelay);  // let the shutter physically respond
     turn_exposure(true);  // tell the camera to take a pic
@@ -108,7 +114,16 @@ void run(int predelay, int antdelay, int shutterdelay, int exposuredur, int post
     turn_shutter(false);  // tell the shutter to close
     delay(postexposure);  // let the muscle rest
     turn_exposure(false); // reset cam trigger
-    //turn_ant(false);      // reset whap
+    turn_ant(false);      // reset whap
+//turn_ant(true);
+//delay(250);
+//turn_shutter(true);
+//delay(100);
+//turn_exposure(true);
+//delay(100);
+//turn_exposure(false);
+//turn_shutter(false);
+//turn_ant(false);
 }
 
 // Series of control functions
