@@ -9,6 +9,7 @@ Created by Dave Williams on 2014-12-04
 import sys
 import os
 import time
+import warnings
 import pickle
 import json
 import numpy as np
@@ -40,7 +41,7 @@ def main(argv=None):
     plot(data)
     return data
 
-def grab(input_dict):
+def grab(input_dict, arduino):
     """Grab a trial with parameters set by input_dict which must contain:
      - fiber_number: what fiber we are on
      - exposure_delay: how long to wait between length change and image in microsec
@@ -53,29 +54,34 @@ def grab(input_dict):
     exposure_delay = int(input_dict['exposure_delay'])
     fiber_offset = float(input_dict['fiber_offset'])
     trial_number = int(input_dict['trial_number'])
+    acq_time = str(int(input_dict['time']))
     exposure_length = int(input_dict['exposure_length'])
     ## Set up detector
-    image_name = "T%04i_Delay%04i_Offset%02.3f_Fiber%i"%(trial_number, exposure_delay,
+    image_name = "T%s_Delay%04i_Offset%02.3f_Fiber%03i"%(acq_time, exposure_delay,
                                                          fiber_offset, fiber_number)
     print "Trig wait with %s"%image_name
     image_path = pilatus.set_up_pilatus(image_name, exposure_length)
     time.sleep(2) # allow camera to ready, possibly not needed
     ## Acquire data
-    arduino = trigger_qr_run.run_control()
     time.sleep(2) # allow serial to connect
     daq = daq_control.daq_acquire()
-    daq.start_task()
     arduino.trigger_run(exposure_delay)
+    time.sleep(4.8) #5 sec stim
+    daq.start_task()
     daq.read_data()
     data = daq.return_dict()
     ## Add in image name and input dict to data
     data['image_path'] = image_path
     data.update(input_dict)
     ## Write out data
-    output_file = open('./trials/T%04i.pkl'%trial_number, 'wb')
+    output_base = './trials/T%04i'%trial_number
+    if os.path.isfile(output_base+'.pkl') or os.path.isfile(output_base+'.json'):
+        output_base = output_base+"OVERWRITEWARNING"
+        warnings.warn("ALMOST OVERWROTE STUFF")
+    output_file = open('./trials/T%s.pkl'%acq_time, 'wb')
     pickle.dump(data, output_file)
     output_file.close()
-    json_file = open('./trials/T%04i.json'%trial_number, 'wb')
+    json_file = open('./trials/T%s.json'%acq_time, 'wb')
     json.dump(data, json_file)
     json_file.close()
     return data
