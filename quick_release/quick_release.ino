@@ -11,7 +11,7 @@
 
 // Timing variables
 const int PREDELAY  = 10;      // in ms, before stim goes on
-const int STIMDELAY = 250;     // in ms, between stim and shutter
+const int STIMDELAY = 5000;    // in ms, between stim and shutter
 const int SHUTTERDELAY = 1000; // in µs, between shutter and length
 const int STEPDELAY = 200;     // in µs, between length and camera
 const int EXPOSUREDUR = 100;   // in µs, camera image duration  TODO: SEND THIS ONE OVER SERIAL TOO
