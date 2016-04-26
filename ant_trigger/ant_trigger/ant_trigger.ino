@@ -12,7 +12,7 @@
 // Timing variables
 const int PREDELAY  = 10;      // in ms, before stim goes on
 const int ANTDELAY = 250;      // in ms, between whap start and shutter
-const int SHUTTERDELAY = 1;    // in ms, between shutter and camera
+const int SHUTTERDELAY = 50;   // in ms, between shutter and camera
 const int EXPOSUREDUR = 1;     // in ms, camera image duration  TODO: SEND THIS ONE OVER SERIAL TOO
 const int POSTEXPOSURE = 1000; // in ms, before returning to length
 
@@ -102,10 +102,7 @@ void check_serial()
 void run(int predelay, int antdelay, int shutterdelay, int exposuredur, int postexposure)
 {
 //    delay(predelay);      // just to let things settle
-//    turn_ant(true);       // whap the ant
-    while(!digitalRead(STIM_IN)){
-      delayMicroseconds(2);
-    }
+    turn_ant(true);       // whap the ant
     delay(antdelay);      // wait for motor movement
     turn_shutter(true);   // tell the shutter to open
     delay(shutterdelay);  // let the shutter physically respond
